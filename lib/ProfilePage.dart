@@ -26,22 +26,29 @@ class OtherPageState extends State<ProfilePage>
     _controllerLastname = TextEditingController();
     _controllerPhone = TextEditingController();
     _controllerEmail = TextEditingController();
-    DataRepository.loadProfileData();
 
+    loadInfoAsync();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Welcome Back' + DataRepository.loginName), duration: Duration(seconds: 30)),
+    );
 
+  }
+
+  Future<void> loadInfoAsync() async{
+    await DataRepository.loadProfileData();
     if (DataRepository.loginName != '') {
       _controllerFirstname.text = DataRepository.firstName;
       _controllerLastname.text = DataRepository.lastName;
       _controllerPhone.text = DataRepository.phoneNumber;
       _controllerEmail.text = DataRepository.emailAddress;
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Welcome Back!'),
-              duration: Duration(seconds: 30)));
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text('Welcome Back!'),
+                duration: Duration(seconds: 30)));
+      });
+
     }
-
-
-
   }
 
   @override
