@@ -55,11 +55,25 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
+    initData();
+
     _loginController = TextEditingController();
     _passwordController = TextEditingController();
 
+    DataRepository.loginName="siqian";
+    DataRepository.loginPassword="siqian123";
+    DataRepository.saveLoginData();
+
     loadDataAsync();
 
+  }
+
+  Future<void> initData() async{
+    try{
+    await DataRepository.init();
+    }catch (e) {
+      print("init data: $e");
+    }
   }
 
   Future<void> loadDataAsync() async{
@@ -67,22 +81,22 @@ class _MyHomePageState extends State<MyHomePage> {
     _loginController.text = DataRepository.loginName;
     _passwordController.text = DataRepository.loginPassword;
 
-    // if (DataRepository.loginName != '' && DataRepository.loginPassword != '' ) {
-    //   WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //         SnackBar(
-    //             content: Text(
-    //                 'the previous login name and passwords have been loaded'),
-    //             action: SnackBarAction(label: 'Clear saved data',
-    //                 onPressed: () {
-    //                   DataRepository.clearLoginData();
-    //                   _loginController.text = '';
-    //                   _passwordController.text = '';
-    //                   Navigator.pop(context);
-    //                 }),
-    //             duration: Duration(seconds: 30)));
-    //   });
-    // }
+    if (DataRepository.loginName != '' && DataRepository.loginPassword != '' ) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    'the previous login name and passwords have been loaded'),
+                action: SnackBarAction(label: 'Clear saved data',
+                    onPressed: () {
+                      DataRepository.clearLoginData();
+                      _loginController.text = '';
+                      _passwordController.text = '';
+                      //Navigator.pop(context);
+                    }),
+                duration: Duration(seconds: 30)));
+      });
+    }
   }
 
 
