@@ -46,8 +46,8 @@ class _MyHomePageState extends State<MyHomePage> {
   late TextEditingController _loginController;
   late TextEditingController _passwordController;
   bool _isPasswordVisible = false;
+  String _username='';
   String _password = '';
-  String? _passwordLabel;
   String _imageSource = 'images/question-mark.png';
 
 
@@ -55,12 +55,32 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
+    initData();
+
     _loginController = TextEditingController();
     _passwordController = TextEditingController();
 
+    DataRepository.loginName="siqian";
+    DataRepository.loginPassword="siqian123";
+    DataRepository.saveLoginData();
+
     loadDataAsync();
-    //savedData = EncryptedSharedPreferences(); //constructor is not asynchronous
-    //savedData.getString("loginName").then((unencryptedString) {
+
+  }
+
+  Future<void> initData() async{
+    try{
+    await DataRepository.init();
+    }catch (e) {
+      print("init data: $e");
+    }
+  }
+
+  Future<void> loadDataAsync() async{
+    await DataRepository.loadLoginData();
+    _loginController.text = DataRepository.loginName;
+    _passwordController.text = DataRepository.loginPassword;
+
     if (DataRepository.loginName != '' && DataRepository.loginPassword != '' ) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -72,67 +92,98 @@ class _MyHomePageState extends State<MyHomePage> {
                       DataRepository.clearLoginData();
                       _loginController.text = '';
                       _passwordController.text = '';
-                      Navigator.pop(context);
+                      //Navigator.pop(context);
                     }),
                 duration: Duration(seconds: 30)));
       });
     }
   }
 
-  Future<void> loadDataAsync() async{
-    await DataRepository.loadLoginData();
-    _loginController.text = DataRepository.loginName;
-    _passwordController.text = DataRepository.loginPassword;
-  }
 
-
-  void _login() {
+  void _login() async {
+    _username=  _loginController.text;
     _password = _passwordController.text;
 
     //setState(() {
       _isPasswordVisible = true;
-     _passwordLabel = 'Password';
+     //_passwordLabel = 'Password';
+    //DataRepository.loginName=_loginController.text;
+    //DataRepository.loginPassword=_passwordController.text;
+    //DataRepository.saveLoginData();
+    //loadDataAsync();
 
-      if (_password == 'siqian123') {
+    if (_password != DataRepository.loginPassword||_username!=DataRepository.loginName){
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Login Failed'),
+            content: Text('Login Failed. User name is '+DataRepository.loginName+" and Password is "+DataRepository.loginPassword),
+            actions: <Widget>[
+              TextButton(
+                child: Text('Close'),
+                onPressed: () {
+                  Navigator.of(context).pop(); // 关闭对话框
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }else{
+      //Navigator.pushNamed(context, '/pageTwo');
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ProfilePage()),
+        );
+
+        if (result != null) {
+          // 假设我们期望返回一个字符串
+          //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Returned: $result")));
+          loadDataAsync();
+        }
+
+    }
+      //if (_password == DataRepository.loginPassword) {
        // DataRepository.loginName = _loginController.text;
         //DataRepository.loginPassword = _passwordController.text;
         //_imageSource = 'images/idea.png';
         //DataRepository.firstName  = _controller.value.text;
-        showDialog<String>(
-          context: context,
-          builder: (BuildContext ctx) =>
-              AlertDialog(
-                title: const Text('Save data'),
-                content: const Text('Do you want to save your login'),
-                actions: <Widget>[
-                  ElevatedButton(child: Text("Yes"),
-                    onPressed: () {
-                      DataRepository.loginName = _loginController.value.text; //
-                      DataRepository.loginPassword = _passwordController.value.text; //
-                      DataRepository.saveLoginData();
-                      Navigator.pop(context);
-                    }
-                    ,),
-                  FilledButton(child: Text("No"),
-                      onPressed: () {
-                        DataRepository.clearLoginData();
-                        _loginController.text = '';
-                        _passwordController.text = '';
-                        Navigator.pop(context);
+        // showDialog<String>(
+        //   context: context,
+        //   builder: (BuildContext ctx) =>
+        //       AlertDialog(
+        //         title: const Text('Save data'),
+        //         content: const Text('Do you want to save your login'),
+        //         actions: <Widget>[
+        //           ElevatedButton(child: Text("Yes"),
+        //             onPressed: () {
+        //               DataRepository.loginName = _loginController.value.text; //
+        //               DataRepository.loginPassword = _passwordController.value.text; //
+        //               DataRepository.saveLoginData();
+        //               Navigator.pop(context);
+        //             }
+        //             ,),
+        //           FilledButton(child: Text("No"),
+        //               onPressed: () {
+        //                 DataRepository.clearLoginData();
+        //                 _loginController.text = '';
+        //                 _passwordController.text = '';
+        //                 Navigator.pop(context);
+        //
+        //               }),
+        //
+        //         ],
+        //       ),
+        // );
 
-                      }),
-
-                ],
-              ),
-        );
-        Navigator.pushNamed(context, '/pageTwo');
        /* ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Welcome Back ${_loginController.text}'), duration: Duration(seconds: 30)),
         );*/
-      }
-      else {
-        _imageSource = 'images/stop.png';
-      }
+      //}
+      //else {
+        //_imageSource = 'images/stop.png';
+      //}
     }
     //);
 
@@ -168,27 +219,30 @@ class _MyHomePageState extends State<MyHomePage> {
             children: <Widget>[
               TextField(controller: _loginController,
                   decoration: const InputDecoration(
-                      hintText: "Login",
-                      border: OutlineInputBorder()
+                      hintText: "UserName",
+                      border: OutlineInputBorder(),
+                      labelText:"UserName",
+                      labelStyle: TextStyle(fontSize: 30.0),
                   )),
+              SizedBox(height: 20.0),
               TextField(controller: _passwordController,
                 decoration: InputDecoration(
-                    hintText: "Password",
+                     hintText: "Password",
                     border: OutlineInputBorder(),
-                    labelText: _passwordLabel
+                    labelText: "Password",
+                    labelStyle: TextStyle(fontSize: 30.0),
                 ),
                 obscureText: !_isPasswordVisible,
 
               ),
-
-
+              SizedBox(height: 20.0),
               ElevatedButton(onPressed: _login,
                   child: const Text("Login",
                       style: TextStyle(fontSize: 30.0, color: Colors.blue))
 
               ),
-              ElevatedButton(onPressed: _login,
-                  child: Image.asset(_imageSource, width: 300, height: 300))
+              // ElevatedButton(onPressed: _login,
+              //     child: Image.asset(_imageSource, width: 300, height: 300))
 
             ],
           ),

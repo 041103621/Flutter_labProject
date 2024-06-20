@@ -14,25 +14,20 @@ class DataRepository{
   static String phoneNumber = "";
   static String emailAddress = "";
   static late EncryptedSharedPreferences prefs;
-  //static late EncryptedSharedPreferences prefs2;
+
+  static Future<void> init() async {
+    prefs = EncryptedSharedPreferences();
+  }
 
   static Future<void> loadLoginData() async
   {
-    //load your variables here
-    prefs = EncryptedSharedPreferences();
+    //load your variables her
     loginName=await prefs.getString("loginName");
     loginPassword=await prefs.getString("loginPassword") ;
   }
 
   static Future<void> loadProfileData() async
   {
-    //load your variables here
-    //var prefs = EncryptedSharedPreferences();
-    //prefs.getString("firstName").then( (endProduct) {firstName = endProduct;}    );
-    //prefs.getString("lastName").then( (endProduct) {lastName = endProduct;}    );
-    //prefs.getString("phoneNumber").then( (endProduct) {phoneNumber = endProduct;}    );
-    //prefs.getString("emailAddress").then( (endProduct) {emailAddress = endProduct;}    );
-    //firstName =  await prefs.getString("firstName");
     firstName=await prefs.getString("firstName");
     lastName=await prefs.getString("lastName");
     phoneNumber=await prefs.getString("phoneNumber");
@@ -40,40 +35,70 @@ class DataRepository{
   }
 
 
-  static void saveLoginData()
+  static Future<void> saveLoginData() async
   {
-    //save your variables
-    var prefs = EncryptedSharedPreferences();
-    prefs.setString("loginName", loginName);
-    prefs.setString("loginPassword", loginPassword);
-
+    try {
+      await prefs.setString("loginName", loginName);
+      await prefs.setString("loginPassword", loginPassword);
+    }catch (e) {
+      print("Error saving login data: $e");
+    }
   }
 
-  static void saveProfileData()
+  static Future<void> saveProfileData() async
   {
-    //save your variables
-    var prefs = EncryptedSharedPreferences();
-    prefs.setString("firstName", firstName);
-    prefs.setString("lastName", lastName);
-    prefs.setString("phoneNumber", phoneNumber);
-    prefs.setString("emailAddress", emailAddress);
+    await prefs.setString("firstName", firstName);
+    await prefs.setString("lastName", lastName);
+    await prefs.setString("phoneNumber", phoneNumber);
+    await prefs.setString("emailAddress", emailAddress);
+
+    // if(firstName!=""){
+    //   await prefs.setString("firstName", firstName);
+    // }else{
+    //   await prefs.remove("firstName");
+    // }
+    //
+    // if(lastName!=""){
+    //   await prefs.setString("lastName", lastName);
+    // }else{
+    //   await prefs.remove("lastName");
+    // }
+    //
+    // if(phoneNumber!=""){
+    //   await prefs.setString("phoneNumber", phoneNumber);
+    // }else{
+    //   await prefs.remove("phoneNumber");
+    // }
+    //
+    // if(emailAddress!=""){
+    //   await prefs.setString("emailAddress", emailAddress);
+    // }else{
+    //   await prefs.remove("emailAddress");
+    // }
+    //
+    // if(loginName!=""){
+    //   await prefs.setString("loginName", loginName);
+    // }
+    //
+    // if(loginPassword!=""){
+    //   await prefs.setString("loginPassword", loginPassword);
+    // }
   }
 
-  static void clearLoginData()
+  static Future<void> clearLoginData() async
   {
-    var prefs = EncryptedSharedPreferences();
-    prefs.remove("loginName");
-    prefs.remove("loginPassword");
-
+    //var prefs = EncryptedSharedPreferences();
+    await prefs.remove("loginName");
+    await prefs.remove("loginPassword");
   }
 
-  static void clearProfileData()
+  static Future<void> clearProfileData() async
   {
-    var prefs = EncryptedSharedPreferences();
-    prefs.remove("firstName");
-    prefs.remove("lastName");
-    prefs.remove("phoneNumber");
-    prefs.remove("emailAddress");
+    //var prefs = EncryptedSharedPreferences();
+    await prefs.remove("firstName");
+    await prefs.remove("lastName");
+    await prefs.remove("phoneNumber");
+    await prefs.remove("emailAddress");
   }
 
 }
